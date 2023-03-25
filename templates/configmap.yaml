@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secret
+type: Opaque
+data:
+  user: YWRtaW4=
+  pass: aWZzYWt0aWk=
+  name: c29zbWVk
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sosmed-config
+data:
+  host: database-1.cmujp7o5mm0w.ap-southeast-2.rds.amazonaws.com
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sosmed
+spec:
+  selector:
+    matchLabels:
+      app: sosmed
+  template:
+    metadata:
+      labels:
+        app: sosmed
+    spec:
+      containers:
+      - name: sosmed
+        image: dzikrihuda/sosmed:v1.0
+        ports:
+        - containerPort: 80
+        envFrom:
+          - configMapRef:
+              name: sosmed-config
+          - secretRef:
+              name: secret
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: sosmed-svc
+spec:
+  selector:
+    app: sosmed
+  ports:
+  - port: 90
+    targetPort: 80
+
+
